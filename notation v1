@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Saatbau – Notation variétale</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f4f4f4;min-height:100vh}
+.app{max-width:480px;margin:0 auto;padding-bottom:3rem}
+
+/* Header */
+.hdr{background:#00b100;color:#fff;padding:.9rem 1.2rem 1rem;border-radius:0 0 14px 14px;margin-bottom:1.2rem;display:flex;align-items:center;gap:14px}
+.lgw{background:#007a00;border-radius:10px;padding:7px 8px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.lgw img{width:52px;height:auto;display:block}
+.hey{font-size:10px;letter-spacing:.1em;opacity:.8;text-transform:uppercase;margin-bottom:2px}
+.hti{font-size:16px;font-weight:700}
+.hdt{font-size:12px;opacity:.75;margin-top:2px}
+
+/* Tabs */
+.tabs{display:flex;margin:0 1rem 1rem;border:1px solid #ccc;border-radius:10px;overflow:hidden}
+.tab{flex:1;padding:11px 0;font-size:14px;font-weight:600;text-align:center;cursor:pointer;background:#f0f0f0;color:#555;border:none}
+.tab.on{background:#00b100;color:#fff}
+.tab:first-child{border-right:1px solid #ccc}
+
+/* Section */
+.sec{background:#fff;border:1px solid #ddd;border-radius:12px;padding:1rem 1.1rem;margin:0 1rem .8rem}
+.stit{font-size:11.5px;font-weight:700;color:#00b100;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.8rem;display:flex;align-items:center;gap:6px}
+.stit::before{content:'';width:3px;height:13px;background:#00b100;border-radius:2px;flex-shrink:0;display:inline-block}
+
+/* Form fields */
+.mg{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.mf label{font-size:12px;color:#666;display:block;margin-bottom:3px}
+.mf input,.mf select{width:100%;padding:8px 10px;border:1px solid #ccc;border-radius:8px;font-size:13px;background:#fff;color:#333}
+.mf.full{grid-column:1/-1}
+.gr{display:flex;gap:7px}
+.gr input{flex:1}
+.gb{padding:8px 11px;background:#00b100;color:#fff;border:none;border-radius:8px;font-size:12px;cursor:pointer;white-space:nowrap;flex-shrink:0;font-weight:600}
+.gb:active{opacity:.8}
+
+/* Notes */
+.ni{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #eee}
+.ni:last-child{border-bottom:none;padding-bottom:0}
+.nl{font-size:13px;flex:1;line-height:1.35;color:#333}
+.nbtns{display:flex;align-items:center;gap:5px}
+.nv{font-size:17px;font-weight:700;min-width:24px;text-align:center}
+.nb{width:28px;height:28px;border:1px solid #ccc;border-radius:7px;background:#f5f5f5;color:#333;font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;font-weight:700}
+.nb:active{transform:scale(.92);background:#e0e0e0}
+.sh{font-size:11px;color:#999;display:flex;justify-content:space-between;padding-top:8px}
+
+/* Composantes */
+.cr{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #eee}
+.cr:last-child{border-bottom:none;padding-bottom:0}
+.cs{padding:8px 10px;border:1px solid #ccc;border-radius:8px;font-size:13px;background:#fff;color:#333;min-width:110px}
+
+/* Textarea */
+textarea{width:100%;padding:9px;border:1px solid #ccc;border-radius:8px;font-size:13px;background:#fff;color:#333;resize:vertical;min-height:80px;font-family:Arial,sans-serif;line-height:1.5}
+
+/* Submit button */
+.btn{display:block;width:calc(100% - 2rem);margin:0 1rem;padding:14px;background:#00b100;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .2s}
+.btn:active{opacity:.85}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Toast */
+.tst{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);padding:10px 22px;border-radius:12px;font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;z-index:99;color:#fff;box-shadow:0 2px 12px rgba(0,0,0,.2)}
+.tst.on{opacity:1}
+.tst.ok{background:#00b100}
+.tst.err{background:#c0392b}
+
+/* GPS box */
+.gpsval{font-size:12px;background:#f5f5f5;color:#555}
+
+/* Panels */
+.pnl{display:none}.pnl.on{display:block}
+
+/* Sync indicator */
+.sync-info{font-size:11px;color:rgba(255,255,255,.7);margin-top:3px}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="lgw">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKAAAAC0CAYAAAATiCegAABOFklEQVR42u19eZwcRfV4VXfPzN672WQ3yZKQExIgHIHIJRqiICqIByyCB16IgOJP8QS/sOAtinKJREUU7wUEoyKIsmBiiDhm17BkySSbzc7O7twzfXdXVXfX649UxUoze5ETmfp85jO7090Vvfe9qopqzAYGAMQAAADw+Xw3I4T2OI7z5xUrVvgppVBVVVUn4P8BAH+ZADCQeAKdSHV1ZVRm7WoX8JplDVsXqf5u3RNLrrgFVPQK/jVHOJ+Q5qWPSg8JE/U/y7quGxTVJi0eQ6w4sMqJfXmGMRt/bKqx2bW0n7G7GqvYc8VmkuMpE4i1JoqEHPVDIeqN66xW3JJpX5FXRZ3v2pn7brPdOm9bq0qWSwBIAmfOlKKVAABSfOlqVQa2ioqiuJ3iqbpoBG3GV6tK1EB7Y7/auG3oFuFt1IAFlFVeQA2p5H/lG1gAGf+4/pQAAh3RmKJF0NhSmF7a7FBGKLnuoHhLGN5CXxNL4W41drNf3W39fXNiCpKbJKIQbRJcgFCKIg5t6eTBsNxWr7gDGUBVWy4vEiYYyFH3jy5WUQ2VwNFiGd2J4mCLXIqOr5y6JwOgxY+Bl0a6p6LYMsIZLm3AobsFigrX9MxijPTBj0NbZSyQ5RLFhKnN5h2n/AGNY8MhggJcBivvFKi+v2BPPbLp3XQBMAYAfABCl9mLAnwJtAKDDEqkXoCuOSqLkDyC8mKEWCH5nqMMIqiEAAAAMBnxuAtBhqJEfwgGJjMx6Y4d72OAOV7H9U7DMjDCcNxBHwgNEL0QAVKJQ/4BLV/8f7f8l/eKiGsAb9J1gAAKJFiL+K6jcYHDlN6nCDzn0+QIAXBR3cBd7RQLQII6ECbXuXTQyBhOA5oi0jKBN/JFNBGk55cUQ44a4igFkjQGYCl1oL9i2/IJfLWJeqaSbEMVQwAMDqVbC5yniYGIpAVQn/GMH0VJTwA/4lSWjEoF8Bq/WkB8Dg0iEJigCCBF4OGAiIBF/5SiAr0LAMCXQDHkA8B7A0NQJHJnUBDoFHKoCEgHr3KYbQSSCFKNSJoqJPRyNKKmkSqWCKqWQLCfXNXWmAHdUTJUEi0XrTCcNQf/7/xb8/8GIlXiClJiLiA2qoqSg0Ir0dCQkXIoNyxXPBRoG+TXpFTpEfhGgZdInSsXsI//rLzimzANaqmjJqmmVIDKwC9Cq6bS0TF8wEP4IQAAH/hJREFUKT8n+wQXvPknfZHZ0AAAAABJRU5ErkJggg==" alt="Saatbau France">
+    </div>
+    <div>
+      <div class="hey">Saatbau France · Notation variétale 2026</div>
+      <div class="hti" id="hti">Évaluation maïs</div>
+      <div class="hdt" id="hdt"></div>
+      <div class="sync-info">&#9679; Connecté à Google Sheets</div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab on" id="t-mais" onclick="sw('mais')">🌽 Maïs</button>
+    <button class="tab" id="t-soja" onclick="sw('soja')">🫘 Soja</button>
+  </div>
+
+  <!-- ══════════════ MAÏS ══════════════ -->
+  <div class="pnl on" id="p-mais">
+
+    <div class="sec"><div class="stit">Identification</div>
+      <div class="mg">
+        <div class="mf"><label>Variété maïs *</label>
+          <select id="mv">
+            <option value="">— Sélectionner —</option>
+            <option>ACADEMO</option><option>ACTIVO</option><option>ADOLARO</option><option>ALISSIO</option>
+            <option>ALPEDRO</option><option>AMIDALO</option><option>APRIOLO</option><option>ARISSONO</option>
+            <option>BAYREUT</option><option>CLASSICO</option><option>COMBREZZO</option><option>ESCANDO</option>
+            <option>FABIOLO</option><option>FALCINO</option><option>FARMICO</option><option>FELIPO</option>
+            <option>FILANDO</option><option>FLAMENCO</option><option>FORMENTO</option><option>FURIOSO</option>
+            <option>GARDAMO</option><option>IMMESO</option><option>JAMILO</option><option>KASPIKO</option>
+            <option>MADANI</option><option>MADIBA</option><option>MANOLO</option><option>PIMENTO</option>
+            <option>PUEBLO</option><option>RODRIGO</option><option>RONCATO</option><option>SABATINO</option>
+            <option>SERAFINO</option><option>SL 33113</option><option>SL 43033</option><option>SL 5742</option>
+            <option>SPEKTRO</option><option>TOPOLINO</option>
+          </select></div>
+        <div class="mf"><label>Stade phénologique</label>
+          <select id="ms">
+            <option value="">— Sélectionner —</option>
+            <option>Levée (VE)</option><option>F4 – F6</option><option>F8 – F10</option>
+            <option>Floraison (VT / R1)</option><option>Grain laiteux (R3)</option><option>Maturité (R6)</option>
+          </select></div>
+        <div class="mf"><label>Technicien *</label>
+          <input id="mt" type="text" placeholder="Nom prénom"></div>
+        <div class="mf full"><label>Commune / Code postal</label>
+          <div class="gr">
+            <input id="mc" type="text" placeholder="Ex : Colmar 68000">
+            <button class="gb" onclick="gps('m')">📍 GPS</button>
+          </div></div>
+        <div class="mf full" id="mgb" style="display:none"><label>Coordonnées GPS</label>
+          <input id="mgv" type="text" readonly class="gpsval"></div>
+      </div>
+    </div>
+
+    <div class="sec"><div class="stit">Notes agronomiques (1 – 9)</div>
+      <div id="mn"></div>
+      <div class="sh">
+        <span>1 = très faible / très basse</span>
+        <span>5 = moyen</span>
+        <span>9 = très bonne / très haute</span>
+      </div>
+    </div>
+
+    <div class="sec"><div class="stit">Composantes de rendement</div>
+      <div class="cr">
+        <span style="flex:1;font-size:13px;color:#333">Nombre de rangées</span>
+        <select class="cs" id="mrg">
+          <option value="">—</option><option>12</option><option>14</option>
+          <option>16</option><option>18</option><option>20</option>
+        </select>
+      </div>
+      <div class="cr">
+        <span style="flex:1;font-size:13px;color:#333">Grains par rang</span>
+        <select class="cs" id="mgr">
+          <option value="">—</option><option>28</option><option>30</option><option>32</option>
+          <option>34</option><option>36</option><option>38</option><option>40 et +</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="sec"><div class="stit">Commentaires</div>
+      <textarea id="mco" placeholder="Observations terrain, conditions de culture, anomalies…"></textarea>
+    </div>
+
+    <button class="btn" id="btn-mais" onclick="sub('mais')">
+      Enregistrer la notation maïs &#8594; Google Sheets
+    </button>
+  </div>
+
+  <!-- ══════════════ SOJA ══════════════ -->
+  <div class="pnl" id="p-soja">
+
+    <div class="sec"><div class="stit">Identification</div>
+      <div class="mg">
+        <div class="mf"><label>Variété soja *</label>
+          <select id="sv">
+            <option value="">— Sélectionner —</option>
+            <option>Abacca</option><option>Abiola</option><option>Abiza</option><option>Acassa</option>
+            <option>Adelfia</option><option>Alameda</option><option>Alumia</option><option>Algebra</option>
+            <option>Altona</option><option>Alvesta</option><option>Ambella</option><option>Ancagua</option>
+            <option>Aniella</option><option>Apollina</option><option>Arietta</option><option>Aristea</option>
+            <option>Atanga</option><option>Aurelina</option><option>Avisia</option><option>Azolia</option>
+            <option>Kristian</option><option>Nirvana</option><option>Pamella</option>
+          </select></div>
+        <div class="mf"><label>Stade phénologique</label>
+          <select id="ss">
+            <option value="">— Sélectionner —</option>
+            <option>Levée (VE)</option><option>F2 – F4</option>
+            <option>Floraison (R1 – R2)</option><option>Gousses (R3 – R4)</option>
+            <option>Remplissage (R5 – R6)</option><option>Maturité (R7 – R8)</option>
+          </select></div>
+        <div class="mf"><label>Technicien *</label>
+          <input id="ste" type="text" placeholder="Nom prénom"></div>
+        <div class="mf full"><label>Commune / Code postal</label>
+          <div class="gr">
+            <input id="sc" type="text" placeholder="Ex : Pau 64000">
+            <button class="gb" onclick="gps('s')">📍 GPS</button>
+          </div></div>
+        <div class="mf full" id="sgb" style="display:none"><label>Coordonnées GPS</label>
+          <input id="sgv" type="text" readonly class="gpsval"></div>
+      </div>
+    </div>
+
+    <div class="sec"><div class="stit">Notes agronomiques (1 – 9)</div>
+      <div id="sn"></div>
+      <div class="sh">
+        <span>1 = très faible / très basse</span>
+        <span>5 = moyen</span>
+        <span>9 = très bonne / très haute</span>
+      </div>
+    </div>
+
+    <div class="sec"><div class="stit">Commentaires</div>
+      <textarea id="sco" placeholder="Observations terrain, nodulation, conditions de culture…"></textarea>
+    </div>
+
+    <button class="btn" id="btn-soja" onclick="sub('soja')">
+      Enregistrer la notation soja &#8594; Google Sheets
+    </button>
+  </div>
+
+</div><!-- end .app -->
+<div class="tst" id="tst"></div>
+
+<script>
+// ── URL du Google Apps Script ──────────────────────────────────────────────
+const WEBHOOK = "https://script.google.com/macros/s/AKfycbzAMuq4bztyDfWDEWmV7DuVXS_YbNGzMSPG_IAMu8OleilJNXaig4InQK_3V-UKavg/exec"
+// ── Critères de notation ───────────────────────────────────────────────────
+const MC = [
+  {id:'vig', l:'Vigueur de départ'},
+  {id:'hp',  l:'Hauteur de plante'},
+  {id:'he',  l:"Hauteur d'insertion épi"},
+  {id:'sg',  l:'Stay green'},
+  {id:'vs',  l:'Tolérance à la verse'}
+];
+const SC = [
+  {id:'vig', l:'Vigueur de départ'},
+  {id:'ram', l:'Ramification'},
+  {id:'ins', l:'Insertion 1ère gousse'},
+  {id:'nbg', l:'Nombre de gousses par étage'},
+  {id:'ten', l:'Tenue de plante / verse'},
+  {id:'pre', l:'Précocité à maturité'}
+];
+
+// ── État des notes ─────────────────────────────────────────────────────────
+const N = {m:{}, s:{}};
+MC.forEach(c => N.m[c.id] = 5);
+SC.forEach(c => N.s[c.id] = 5);
+
+// ── Couleur selon note ─────────────────────────────────────────────────────
+function cl(v){ return v<=3?'#c0392b':v>=7?'#00b100':'#e67e22'; }
+
+// ── Construction des grilles de notes ─────────────────────────────────────
+function mkNotes(k, crit){
+  const el = document.getElementById(k+'n');
+  el.innerHTML = '';
+  crit.forEach(c => {
+    const d = document.createElement('div');
+    d.className = 'ni';
+    d.innerHTML = `<span class="nl">${c.l}</span>
+      <div class="nbtns">
+        <div class="nb" onclick="ch('${k}','${c.id}',-1)">−</div>
+        <span class="nv" id="nv-${k}-${c.id}" style="color:${cl(5)}">5</span>
+        <div class="nb" onclick="ch('${k}','${c.id}',1)">+</div>
+      </div>`;
+    el.appendChild(d);
+  });
+}
+
+function ch(k, id, d){
+  N[k][id] = Math.max(1, Math.min(9, N[k][id] + d));
+  const e = document.getElementById('nv-'+k+'-'+id);
+  e.textContent = N[k][id];
+  e.style.color = cl(N[k][id]);
+}
+
+// ── Changement d'onglet ────────────────────────────────────────────────────
+function sw(c){
+  const isMais = c === 'mais';
+  document.getElementById('t-mais').classList.toggle('on', isMais);
+  document.getElementById('t-soja').classList.toggle('on', !isMais);
+  document.getElementById('p-mais').classList.toggle('on', isMais);
+  document.getElementById('p-soja').classList.toggle('on', !isMais);
+  document.getElementById('hti').textContent = 'Évaluation ' + (isMais ? 'maïs' : 'soja');
+}
+
+// ── GPS ────────────────────────────────────────────────────────────────────
+function gps(k){
+  if(!navigator.geolocation){ toast('GPS non disponible','err'); return; }
+  toast('Localisation en cours…','ok');
+  navigator.geolocation.getCurrentPosition(
+    p => {
+      const val = p.coords.latitude.toFixed(6)+', '+p.coords.longitude.toFixed(6);
+      document.getElementById(k+'gv').value = val;
+      document.getElementById(k+'gb').style.display = 'block';
+      toast('Position enregistrée ✓','ok');
+    },
+    () => toast("Impossible d'obtenir la position",'err')
+  );
+}
+
+// ── Soumission ─────────────────────────────────────────────────────────────
+async function sub(c){
+  const isMais = c === 'mais';
+  const k = isMais ? 'm' : 's';
+  const varEl  = document.getElementById(isMais ? 'mv' : 'sv');
+  const techEl = document.getElementById(isMais ? 'mt' : 'ste');
+  const btnEl  = document.getElementById('btn-'+c);
+
+  if(!varEl.value || !techEl.value){
+    toast('⚠ Variété et technicien requis','err'); return;
+  }
+
+  // Construction du payload
+  const crit = isMais ? MC : SC;
+  const notes = {};
+  crit.forEach((cr,i) => notes['n'+(i+1)] = N[k][cr.id]);
+
+  const payload = {
+    date:      new Date().toLocaleDateString('fr-FR'),
+    culture:   isMais ? 'Maïs' : 'Soja',
+    variete:   varEl.value,
+    stade:     document.getElementById(isMais ? 'ms' : 'ss').value,
+    technicien:techEl.value,
+    commune:   document.getElementById(isMais ? 'mc' : 'sc').value,
+    gps:       document.getElementById(isMais ? 'mgv' : 'sgv').value,
+    n1: notes.n1, n2: notes.n2, n3: notes.n3,
+    n4: notes.n4, n5: notes.n5,
+    n6: isMais ? '' : notes.n6,
+    rangees:   isMais ? document.getElementById('mrg').value : '',
+    grains:    isMais ? document.getElementById('mgr').value : '',
+    commentaires: document.getElementById(isMais ? 'mco' : 'sco').value
+  };
+
+  // Envoi
+  btnEl.disabled = true;
+  btnEl.innerHTML = '<span class="spinner"></span> Envoi en cours…';
+
+  try {
+    await fetch(WEBHOOK, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    toast('✓ Notation enregistrée dans Google Sheets !','ok');
+    resetForm(c);
+  } catch(err) {
+    toast('✗ Erreur réseau – réessayez','err');
+  } finally {
+    btnEl.disabled = false;
+    btnEl.innerHTML = 'Enregistrer la notation '+c+' → Google Sheets';
+  }
+}
+
+// ── Reset formulaire après envoi ───────────────────────────────────────────
+function resetForm(c){
+  const isMais = c === 'mais';
+  const k = isMais ? 'm' : 's';
+  const crit = isMais ? MC : SC;
+
+  document.getElementById(isMais?'mv':'sv').value = '';
+  document.getElementById(isMais?'ms':'ss').value = '';
+  document.getElementById(isMais?'mt':'ste').value = '';
+  document.getElementById(isMais?'mc':'sc').value = '';
+  document.getElementById(isMais?'mgv':'sgv').value = '';
+  document.getElementById(isMais?'mgb':'sgb').style.display = 'none';
+  document.getElementById(isMais?'mco':'sco').value = '';
+  if(isMais){
+    document.getElementById('mrg').value='';
+    document.getElementById('mgr').value='';
+  }
+  crit.forEach(cr => {
+    N[k][cr.id] = 5;
+    const e = document.getElementById('nv-'+k+'-'+cr.id);
+    if(e){ e.textContent=5; e.style.color=cl(5); }
+  });
+}
+
+// ── Toast notification ─────────────────────────────────────────────────────
+function toast(msg, type='ok'){
+  const e = document.getElementById('tst');
+  e.textContent = msg;
+  e.className = 'tst on '+(type==='err'?'err':'ok');
+  clearTimeout(e._t);
+  e._t = setTimeout(()=>e.classList.remove('on'), 3200);
+}
+
+// ── Initialisation ─────────────────────────────────────────────────────────
+document.getElementById('hdt').textContent =
+  new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+mkNotes('m', MC);
+mkNotes('s', SC);
+</script>
+</body>
+</html>
