@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Saatbau – Notation variétale</title>
+
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="logo.png">
+<meta name="theme-color" content="#00b100">
+
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Arial,sans-serif;background:#f4f4f4;min-height:100vh}
@@ -63,6 +68,9 @@ textarea{width:100%;padding:9px;border:1px solid #ccc;border-radius:8px;font-siz
 .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
 @keyframes spin{to{transform:rotate(360deg)}}
 
+/* Mentions bas de page */
+.footer-note {text-align: center; font-size: 10px; color: #888; font-style: italic; margin-top: 1.5rem; padding: 0 1rem;}
+
 /* Toast */
 .tst{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);padding:10px 22px;border-radius:12px;font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;z-index:99;color:#fff;box-shadow:0 2px 12px rgba(0,0,0,.2)}
 .tst.on{opacity:1}
@@ -82,7 +90,6 @@ textarea{width:100%;padding:9px;border:1px solid #ccc;border-radius:8px;font-siz
 <body>
 <div class="app">
 
-  <!-- HEADER -->
   <div class="hdr">
     <div class="lgw">
       <img src="logo.png" alt="Saatbau France">    </div>
@@ -94,13 +101,11 @@ textarea{width:100%;padding:9px;border:1px solid #ccc;border-radius:8px;font-siz
     </div>
   </div>
 
-  <!-- TABS -->
   <div class="tabs">
     <button class="tab on" id="t-mais" onclick="sw('mais')">🌽 Maïs</button>
     <button class="tab" id="t-soja" onclick="sw('soja')">🫘 Soja</button>
   </div>
 
-  <!-- ══════════════ MAÏS ══════════════ -->
   <div class="pnl on" id="p-mais">
 
     <div class="sec"><div class="stit">Identification</div>
@@ -112,12 +117,12 @@ textarea{width:100%;padding:9px;border:1px solid #ccc;border-radius:8px;font-siz
             <option>ALPEDRO</option><option>AMIDALO</option><option>APRIOLO</option><option>ARISSONO</option>
             <option>BAYREUT</option><option>CLASSICO</option><option>COMBREZZO</option><option>ESCANDO</option>
             <option>FABIOLO</option><option>FALCINO</option><option>FARMICO</option><option>FELIPO</option>
-            <option>FILANDO</option><option>FLAMENCO</option><option>FORMENTO</option><option>FURIOSO</option>
+            <option>FILANDO</option><option>FLAVIANO</option><option>FORMENTO</option><option>FURIOSO</option>
             <option>GARDAMO</option><option>IMMESO</option><option>JAMILO</option><option>KASPIKO</option>
             <option>MADANI</option><option>MADIBA</option><option>MANOLO</option><option>PIMENTO</option>
             <option>PUEBLO</option><option>RODRIGO</option><option>RONCATO</option><option>SABATINO</option>
             <option>SERAFINO</option><option>SL 33113</option><option>SL 43033</option><option>SL 5742</option>
-            <option>SPEKTRO</option><option>TOPOLINO</option>
+            <option>SPEKTRO</option><option>TOPOLINO</option><option>VARIETO</option><option>autres variétés</option>
           </select></div>
         <div class="mf"><label>Stade phénologique</label>
           <select id="ms">
@@ -172,7 +177,6 @@ textarea{width:100%;padding:9px;border:1px solid #ccc;border-radius:8px;font-siz
     </button>
   </div>
 
-  <!-- ══════════════ SOJA ══════════════ -->
   <div class="pnl" id="p-soja">
 
     <div class="sec"><div class="stit">Identification</div>
@@ -224,8 +228,9 @@ textarea{width:100%;padding:9px;border:1px solid #ccc;border-radius:8px;font-siz
     </button>
   </div>
 
-</div><!-- end .app -->
-<div class="tst" id="tst"></div>
+  <div class="footer-note">sans observations enregistrées les notes sont par défaut à 0</div>
+
+</div><div class="tst" id="tst"></div>
 
 <script>
 // ── URL du Google Apps Script ──────────────────────────────────────────────
@@ -247,13 +252,16 @@ const SC = [
   {id:'pre', l:'Précocité à maturité'}
 ];
 
-// ── État des notes ─────────────────────────────────────────────────────────
+// ── État des notes (Initialisées à 0) ──────────────────────────────────────
 const N = {m:{}, s:{}};
-MC.forEach(c => N.m[c.id] = 5);
-SC.forEach(c => N.s[c.id] = 5);
+MC.forEach(c => N.m[c.id] = 0);
+SC.forEach(c => N.s[c.id] = 0);
 
 // ── Couleur selon note ─────────────────────────────────────────────────────
-function cl(v){ return v<=3?'#c0392b':v>=7?'#00b100':'#e67e22'; }
+function cl(v){ 
+  if(v === 0) return '#999';
+  return v<=3?'#c0392b':v>=7?'#00b100':'#e67e22'; 
+}
 
 // ── Construction des grilles de notes ─────────────────────────────────────
 function mkNotes(k, crit){
@@ -265,7 +273,7 @@ function mkNotes(k, crit){
     d.innerHTML = `<span class="nl">${c.l}</span>
       <div class="nbtns">
         <div class="nb" onclick="ch('${k}','${c.id}',-1)">−</div>
-        <span class="nv" id="nv-${k}-${c.id}" style="color:${cl(5)}">5</span>
+        <span class="nv" id="nv-${k}-${c.id}" style="color:${cl(0)}">0</span>
         <div class="nb" onclick="ch('${k}','${c.id}',1)">+</div>
       </div>`;
     el.appendChild(d);
@@ -273,13 +281,13 @@ function mkNotes(k, crit){
 }
 
 function ch(k, id, d){
-  N[k][id] = Math.max(1, Math.min(9, N[k][id] + d));
+  N[k][id] = Math.max(0, Math.min(9, N[k][id] + d));
   const e = document.getElementById('nv-'+k+'-'+id);
   e.textContent = N[k][id];
   e.style.color = cl(N[k][id]);
 }
 
-// ── Changement d'onglet ────────────────────────────────────────────────────
+// ... (reste des fonctions identiques) ...
 function sw(c){
   const isMais = c === 'mais';
   document.getElementById('t-mais').classList.toggle('on', isMais);
@@ -289,7 +297,6 @@ function sw(c){
   document.getElementById('hti').textContent = 'Évaluation ' + (isMais ? 'maïs' : 'soja');
 }
 
-// ── GPS ────────────────────────────────────────────────────────────────────
 function gps(k){
   if(!navigator.geolocation){ toast('GPS non disponible','err'); return; }
   toast('Localisation en cours…','ok');
@@ -304,7 +311,6 @@ function gps(k){
   );
 }
 
-// ── Soumission ─────────────────────────────────────────────────────────────
 async function sub(c){
   const isMais = c === 'mais';
   const k = isMais ? 'm' : 's';
@@ -316,7 +322,6 @@ async function sub(c){
     toast('⚠ Variété et technicien requis','err'); return;
   }
 
-  // Construction du payload
   const crit = isMais ? MC : SC;
   const notes = {};
   crit.forEach((cr,i) => notes['n'+(i+1)] = N[k][cr.id]);
@@ -337,7 +342,6 @@ async function sub(c){
     commentaires: document.getElementById(isMais ? 'mco' : 'sco').value
   };
 
-  // Envoi
   btnEl.disabled = true;
   btnEl.innerHTML = '<span class="spinner"></span> Envoi en cours…';
 
@@ -358,7 +362,6 @@ async function sub(c){
   }
 }
 
-// ── Reset formulaire après envoi ───────────────────────────────────────────
 function resetForm(c){
   const isMais = c === 'mais';
   const k = isMais ? 'm' : 's';
@@ -376,13 +379,12 @@ function resetForm(c){
     document.getElementById('mgr').value='';
   }
   crit.forEach(cr => {
-    N[k][cr.id] = 5;
+    N[k][cr.id] = 0;
     const e = document.getElementById('nv-'+k+'-'+cr.id);
-    if(e){ e.textContent=5; e.style.color=cl(5); }
+    if(e){ e.textContent=0; e.style.color=cl(0); }
   });
 }
 
-// ── Toast notification ─────────────────────────────────────────────────────
 function toast(msg, type='ok'){
   const e = document.getElementById('tst');
   e.textContent = msg;
@@ -391,7 +393,6 @@ function toast(msg, type='ok'){
   e._t = setTimeout(()=>e.classList.remove('on'), 3200);
 }
 
-// ── Initialisation ─────────────────────────────────────────────────────────
 document.getElementById('hdt').textContent =
   new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 mkNotes('m', MC);
