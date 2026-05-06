@@ -406,6 +406,25 @@ document.getElementById('hdt').textContent =
   new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 mkNotes('m', MC);
 mkNotes('s', SC);
+// ── Suivi Google Analytics pour le choix des variétés ──────────────────────
+
+// Écouteur pour le menu Maïs
+document.getElementById('mv').addEventListener('change', function() {
+  if (this.value) { // On n'envoie rien si c'est le choix vide "Sélectionner"
+    gtag('event', 'choix_variete_mais', {
+      'nom_variete': this.value
+    });
+  }
+});
+
+// Écouteur pour le menu Soja
+document.getElementById('sv').addEventListener('change', function() {
+  if (this.value) {
+    gtag('event', 'choix_variete_soja', {
+      'nom_variete': this.value
+    });
+  }
+});
 </script>
 </body>
 </html>
